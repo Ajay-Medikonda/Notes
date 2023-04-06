@@ -1,0 +1,27 @@
+#Create a Resource Group
+Syntax: az group create --location <location of your resource group> --name <name of your resource group>
+Ex:az group create --location eastus --name azure_ajay 
+or
+EX:az group create -l eastus -n azure_ajay 
+
+#Create Vnet & Subnet
+Syntax: az network vnet create --resource-group <name of your resource group> --name <name of your Vnet> \
+--address-prefix <Cider for Vnet> --subnet-name <name of Subnet> --subnet-prefix <Cider for subnet> --location <location of subnet>
+or
+Syntax: az network vnet create -g <name of your resource group> -n<name of your Vnet> \
+--address-prefix <Cider for Vnet> --subnet-name <name of Subnet> --subnet-prefix <Cider for subnet> -l <location of subnet>
+Ex:az network vnet create -g azure_ajay -n Vnet1 --address-prefix 10.1.0.0/16 --subnet-name Subnet1 \
+--subnet-prefix 10.1.1.0/24 -l eastus
+
+#Create Vm 
+Syntax: az vm create --resource-group <name of your resource group> --name <name of your Vm> --image UbuntuLTS \
+--vnet-name <vnet Name> --subnet <Subnet Name> --admin-username <user Name> --admin-password "<Password>" \
+--size Standard_B1s --ngs "" -l <location> (not required if same as Vnet if different to be mentioned here)
+Ex:az vm create --resource-group azure_ajay --name LINXVM1 --image UbuntuLTS --vnet-name vnet1 \
+--subnet Subnet1 --admin-username adminajay --admin-password "India@12345" --size Standard_B1s \
+--ngs ""
+
+
+---------------------------------------------------------------------------------------------------------------------
+VPC Peering
+

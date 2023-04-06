@@ -1,0 +1,208 @@
+Creating a Highly aviable jenkins Server
+
+Study at https://www.opcito.com/blogs/how-to-configure-jenkins-with-high-availability
+
+Inorder to create highly aviable jenkins server we have to create 2 servers in two separet regions and 
+we have to share files between the both by using AWS EFS (amazon elastic file system)
+ Amazon Elastic File System (Amazon EFS) provides a simple, serverless, set-and-forget, elastic file system 
+ that lets you share file data without provisioning or managing storage. It can be used with 
+ AWS Cloud services and on-premises resources, and is built to scale on demand to petabytes 
+ without disrupting applications.
+
+#Create AWs EFS
+Go EFS & Click on Create a file system
+Name: Ex: Green_Jenkins
+VPC: Ex: Green_VPC
+Now click on Customize
+For now for practice -> Uncheck Enable automatic backup
+Click Next
+Network -> VPC : Green_VPC
+Mount Target :
+               US-east-1a Subnet 01 10.0.1.100 Green_VPC_SG
+               US-east-1b Subnet 02 10.0.2.100 Green_VPC_SG
+Next -> .....-> Create
+
+#Create 2 Ec2 Instance in 2 different regions for installing jenkins
+Inoreder to attach EFS to Jenkins Servers we have to install nfs-common in servers along with openjdk-8-jre 
+which is required for jenkins
+
+So enter following commands in user data while creating instances
+#!/bin/bash
+apt update
+apt install -y nfs-common
+apt install -y openjdk-8-jre
+
+Inorder to share files we have maintain same type of files in both like directiory to install jenkins
+Create a directory 
+#mkdir /var/lib/jenkins
+
+Indorder to share files or save files we have to mount this directorie
+fs-fa0cc77a.efs.us-east-1.amazonaws.com:/   	/var/lib/jenkins    	nfs	defaults    	0   0
+Ex: fs-0770c673af392d786.efs.us-east-1.amazonaws.com:/   	/var/lib/jenkins    	nfs	defaults    	0   0
+              
+Now we have write this command to etc/fstab and mount the directiory.
+
+We can see mounted directories by using df -h
+df -h -> When used without any argument,  the df command will display information about all mounted 
+file systems and Actually the h stands for "human-readable".
+
+#nano /etc/fstab
+#cat /etc/fstab
+#df -h
+#mount -a
+#df -h
+Result: fs-0770c673af392d786.efs.us-east-1.amazonaws.com:/ 9007199254739968       0 9007199254739968   0% /var/lib/jenkins
+i.e EFS -> fs-0770c673af392d786 mounted to /var/lib/jenkins, so what ever saved to /var/lib/jenkins will be saved in EFS
+Repeat the same in second server
+
+Now install jenkins in servers
+while installing jenkins we can see in second server also jenkins will install, we can check by using
+#watch -n 1 ls -al /var/lib/jenkins/ --> Secondary Server
+
+Now install jenkins in Secondary servers
+while installing jenkins we can see in second server also jenkins will install, we can check by using
+#watch -n 1 ls -al /var/lib/jenkins/ --> Primary Server
+
+Highly Aviable Jenkins was setedup.
+
+Now if we build a project in primary jenkins server it will not automatically upadted in 
+secondary jenkins server
+We get update only if we restart secondary jenkins sever and vice versa , In order to over come this 
+situation we do following configuration to update automatically.
+#Create a user and login with that user and create the token which can be used to reload 
+the config rather than restart the server.
+
+Study at : https://linuxbuff.wordpress.com/2020/07/29/howto-reload-jenkins-configuration-from-the-command-line/
+
+HOWTO – Reload Jenkins Configuration from the Command Line
+
+Part 1 – Create Jenkins User to Reload Configuration
+Use the Jenkins GUI to create a user with privileges to reload configuration (e.g. admin)
+Login as that user and then Generate a token by clicking the drop down next to your username 
+and clicking Configure – and then Add new Token
+User Name:jenkins
+PWD:1234
+Tocken: 11d4d2b5301f201c125198e8eac0a39819
+
+Part 2 – Reload configuration
+For this to work we need to have jenkins-cli.jar handy 
+
+Synetx: wget http://public id of secondary server:8080/jnlpjars/jenkins-cli.jar
+wget http://34.207.223.40:8080/jnlpJars/jenkins-cli.jar
+
+Install same by changing public Ip do it for primary server
+
+
+Download Jenkins-cli.jar to root folder and make sure you give absolute path in the cli.
+Syntax:java -jar /jenkins-cli.jar -s http://public id of secondary server:8080 -auth user_name created primary jenkins server:tocken generated for user - jenkins reload-configuration
+java -jar jenkins-cli.jar -s http://34.207.223.40:8080 -auth jenkins:11d4d2b5301f201c125198e8eac0a39819 reload-configuration
+open cronetab -e and add for both servers
+* * * * *  java -jar jenkins-cli.jar -s http://34.207.223.40:8080 -auth jenkins:11d4d2b5301f201c125198e8eac0a39819 reload-configuration
+change IP to primary server and add in primary server
+
+################################################################################################################################################
+
+Jenkins : Master - Slave
+Generally We create Slaves (Nothing but a server) when we have huge no. of jobs running, in following ways we create Slave
+-> Regular Machine for Running 24/7
+-> on_Demand EC2 Machine.
+-> Docker Container as Slave
+
+#Regular Machine as Slavee:
+-> Create EC2 Machine and Install JDk & Jenkins to Create Jenkins Master Server 
+-> su - jenkins
+-> pwd => /var/lib/jenkins
+-> Generate ssh Keys => ssh-keygen
+->cat /var/lib/jenkins/.ssh/id_rsa to get private keygen
+  -----BEGIN OPENSSH PRIVATE KEY-----
+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
+-----END OPENSSH PRIVATE KEY-----
+
+-> cat  /var/lib/jenkins/.ssh/id_rsa.pub to get public keygen
+ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCZYoD75DdgZu/PCE6YvnLZY6rpsbVN/TWHYULQ/gf8S0SPuf+stQtv5ETDiyKsl75rhgeIDzrQcFJs1fmq1BsF143JnG9vXJsQUFXtsPPibfL2MLgJLCQPibFSKTzS7lkQQpkE7XmF9p7V0gakmowcaW1+xee0/6WyMUno86F3eEv1D1z6fyru1wgFjZ4Ox5sA5TQC1ulfxa9Cv/EhQyHxWwLHzAg2rXwV4koZBnvAV1ko2CIA+aXtSbS6+/PzxnM9hcjyQkoXXR55EBUxLbiIR+Mn/T4zMmbOByJU03pHQAWD07fXOLlpnHeC2OoH906QBqbelp/0M7j2xltwWWl/gopukI/VFGS1BHaw5rtqGgsxa2o2LMs1CjOFnMsWQyxxljfRYzkR8LQWyaMbeOZPNgvQjzlUF3xK/mjoyfuKou5ZGu60MF6vF8VOsN3tWkCw4Pg+uoS59bc3R25oCOwJsCbawV1KsmgbDZiZGocwqeqeipVGo8INv8V1alIHgjs= jenkins@ip-10-0-3-151
+
+-> Now create a ec2 server and add public key of jenkins server to authorized_keys in ubuntu user , follow the steps to do so.....
+->login to ubuntu instance created -> ls ->cd .ssh -> ll -> nano authorized_keys -> add public key of jenkins server to authorized_keys in ubuntu user
+->Go to jenkins user in jenkins server and try to login to ubuntu machine by using  ssh ubuntu@private ip of ubuntu and it should be logedin
+
+->Now create key in jenkins server => Jenkins GUI
+ => Click on Manage Jenkins => Goto Manage Credentials => click on system => click on Global credentials => Add Credentials.
+     => kind --> SSH user with private key
+     => ID --> Give any Name: EX: ID_for_Slaves
+     => Description --> Give any Name: EX: ID_for_Slaves
+     => Username --> Give any Name: EX: Ubuntu
+     => Private key --> Enter directly --> Add --> create
+
+->Now configure Node/Slave
+=>Click on Manage Jenkins => Manage nodes and clouds => Click on New Node 
+  --> Node name => Give any Name: EX: Dev_Slave --> Select Permanent Agent --> Create
+  --> Description => Give any Name:EX: Dev_Slave
+  --> Remote root directory => /home/ubuntu
+  --> Labels => Give any Name:EX: Dev
+  --> Usage => Only build jobs with lable expressions matching this nodes
+  --> Launch method : Launch agents via ssh
+  --> Host: Private IP DNS name (IPv4 only) of jenkin_slave
+  --> Credentials: Ubuntu (ID_for_Slaves)
+  --> Host Key Verification Strategy: Non Verifying Verification Strategy
+  --> save
+  -->select nose --> Dev_Slave
+  -->click on lanch agent
+
+Note: Now we can install unzip, docker, Terraform CLI & aws CLI in Node/Slave Server and create a AWS image out of it for future purpose
+
+#Testing Slave 
+=> Click on new item --> Test01-Dev-Slave --> Freestyle project --> Restrict where this project can be run ? => DEV_Slave
+=> Build Steps : 
+#!/bin/bash
+for I in {1..10}
+do
+echo $I
+sleep 1
+done
+terraform --version
+aws cli --version
+
+==> AWS Plugins in jenkins
+    --> Amazone Ec2
+    --> S3 Publisher
+    -->CloudeBees AWS Credentials
+    -->Artifact Manager on S3
+
+==>Role-based Authorazition Strategy
+   
+#On_Demand EC2 Machine:

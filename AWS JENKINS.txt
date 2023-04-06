@@ -1,0 +1,124 @@
+Jenkins password:352d92c0d4d341bdb8f645cf4b4a9dd7
+Access key ID: AKIA5JADCD743F52A34U
+Secret access key: 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
+AWS ec2 create-volume --volume-type gp2 --size 1 --availability-zone us-east-1a
+export AWS_ACCESS_KEY_ID=AKIA5JADCD74ZAFI75PH
+export AWS_SECRET_ACCESS_KEY=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
+export AWS_DEFAULT_REGION=us-east-1
+--------------------------------------------------------------------------------------------------------------------------------------
+#!/bin/bash
+aws --version
+for X in {1..10}
+do
+echo "The Value of X is $X Now ..."
+sleep 2
+done
+--------------------------------------------------------------------------------------------------------------------------------------
+#Inorder to build sucessfully with AWS we have to add Environment variables to do so we have to follow following Path in Jenkins
+  Manage Jenkins > Configure System > Global properties > Environment variables > List of variables
+  Name:AWS_ACCESS_KEY_ID Value:AKIA5JADCD74ZAFI75PH
+ Add
+  Name:AWS_SECRET_ACCESS_KEY Value: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
+ Add
+  Name:AWS_DEFAULT_REGION Value:us-east-1
+ Apply > Save.
+--------------------------------------------------------------------------------------------------------------------------------------
+#!/bin/bash
+aws s3 ls > # Inorder to list all S3 in AWS
+--------------------------------------------------------------------------------------------------------------------------------------
+#Script for creating Volumes in AWS from Jenkins#
+
+#!/bin/bash
+for Vol in {1..5}  .................................................................# Will run for loop 5 times i.e 1,2,3,4,5 #
+do
+aws ec2 create-volume --volume-type gp2 --size 1 --availability-zone us-east-1a ....# Script to create Volumes in AWS with                                                                                                 # With Volume Type : gp2
+                                                                                    # Volume Size : 1 GiB Each
+                                                                                    # In Availability None : us-east-1a  
+sleep 2.............................................................................# It will take 2 Sec time gap to create each                                                                                                                               Volume
+done
+--------------------------------------------------------------------------------------------------------------------------------------
+#Script for Deleting Volumes in AWS from Jenkins#
+
+#!/bin/bash
+for Vol in {1..5}  .................................................................# Will run for loop 5 times i.e 1,2,3,4,5 #
+do
+aws ec2 create-volume --volume-type gp2 --size 1 --availability-zone us-east-1a ....# Script to create Volumes in AWS with                                                                                                 # With Volume Type : gp2
+                                                                                    # Volume Size : 1 GiB Each
+                                                                                    # In Availability None : us-east-1a  
+sleep 2.............................................................................# It will take 2 Sec time gap to create each                                                                                                                               Volume
+done
+--------------------------------------------------------------------------------------------------------------------------------------
+
+1.What is Jenkins?
+> Jenkins is an open-source free automation tool used to build and test software projects. 
+> The tool makes it painless for developers to integrate changes to the project. 
+> Jenkins' primary focus is to keep track of the version control system and initiate and monitor a build system if there are any changes. 
+> It keeps an eye on the entire process and provides reports and notifications to alert.
+
+Some typical reasons as to why Jenkins is so widely used are:
+> Developers and testers use Jenkins to detect defects in the software development lifecycle and automate the testing of builds. 
+> They use it to continuously monitor the code in real-time and integrate changes into the build.
+> Jenkins as it turns out, is a great fit for building a CI/CD pipeline because of its plugin-capabilities, and simple-to-use nature.
+
+2.What are the features of Jenkins?
+  Some of the crucial features of Jenkins are the following:
+ > It is a free and open-source automation tool
+ > Jenkins provides a vast number of plugins
+ > It is easy to set up and install on multiple operating systems
+ > Provides pipeline support
+ > Fast release cycles 
+ > Easy upgrades
+
+3.What is Groovy in Jenkins?
+ > Apache Groovy is a dynamic object-oriented programming language used as a scripting language for Java platforms. 
+ > Groovy is used to orchestrate the Jenkins pipeline and enables different teams to contribute to the work in different languages. 
+ > Groovy's syntax is very similar to that of Java, making it more seamless with the Java interface. 
+ > The language has several features like Java compatibility and Development support.
+
+4.How do you install Jenkins?
+ > Follow the steps mentioned below to install Jenkins:
+ > Install Java 
+ > Install Apache Tomcat Server
+ > Download Jenkins war File
+ > Deploy Jenkins war File
+
+5.Which commands can be used to begin Jenkins?
+ > Here are the commands used to start Jenkins:
+   >Open the command prompt
+   >After the command prompt opens, browse to the directory where Jenkins war is present
+   >Then run the following command:
+   >D:\>Java -jar Jenkins.war
+
+6.What is "Continuous Integration" with reference to Jenkins?
+ > Continuous Integration is a development practice where the codes can be integrated into a shared repository. 
+ > The practice uses automated verifications for the early detection of code problems. 
+ > Continuous Integration triggers the build to find and identify bugs present in the code.
+ > It adds consistency to the build process.
+ > It’s a means to build things faster and prevents broken code.
+
+7.What are the differences between Continuous Integration, Continuous Delivery, and Continuous Deployment?
+Continuous Integration
+Continuous Integration (CI) is a DevOps software development practice that permits developers to combine/merge the changes 
+to their code in the central repository to run automated builds and tests.
+
+Continuous Delivery
+Continuous Delivery (CD) refers to the building, testing, and delivering improvements to the software code. 
+The most critical part of the CD is that the code is always in a deployable state.
+
+Continuous Deployment
+Continuous Deployment (CD) is the ultimate stage in the DevOps pipeline. It  refers to automatic release of any 
+developer changes from the repository to the production stage. 
+
+8.What is a CI/CD pipeline?
+CI/CD Pipeline or Continuous Integration/ Continuous Delivery is considered the DevOps approach's backbone. 
+The pipeline is responsible for building codes, running tests, and deploying new software versions.
+
+9.What is a Jenkins pipeline?
+The pipeline represents the continuous delivery and continuous integration of all the jobs in the SDLC (Software development life cycle) and DevOps life cycle. 
+The Jenkins pipeline is a set of plugins that support implementation and integration of continuous delivery pipelines into Jenkins. It connects this pipeline in a particular format by Jenkins.
+The Jenkins pipeline solves several problems like the maintenance of thousands of jobs and maintaining deployment with needing to resort to other powerful methods.
+
+10.
+
+
+
